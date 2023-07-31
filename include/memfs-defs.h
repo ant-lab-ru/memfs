@@ -1,0 +1,13 @@
+#pragma once
+
+#ifndef MEMFS_FILE_NAME_MAX_LEN
+#define MEMFS_FILE_NAME_MAX_LEN 32
+#endif
+
+#ifndef MEMFS_LOG_STRING_MAX_LEN
+#define MEMFS_LOG_STRING_MAX_LEN 128
+#endif
+
+#ifndef MEMFS_DATA_BUF_LEN
+#define MEMFS_DATA_BUF_LEN 1024
+#endif
