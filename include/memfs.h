@@ -89,7 +89,7 @@ typedef struct {
 } memfs_stat_t;
 
 /* Init memfs */
-int memfs_init(const memfs_file_t* files, const uint16_t files_count, const memfs_volume_t* volumes, const uint8_t volumes_count);
+int memfs_init(memfs_file_t* files, const uint16_t files_count, memfs_volume_t* volumes, const uint8_t volumes_count);
 
 /* Std functions */
 int memfs_open(const char* filename, int mode);

@@ -2,4 +2,13 @@
 
 #include "memfs.h"
 
-int emfs_calculate_crc(memfs_file_t* f);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+uint32_t _memfs_calculate_crc(memfs_file_t* f);
+
+#ifdef __cplusplus
+}
+#endif
+

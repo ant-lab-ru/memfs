@@ -8,4 +8,4 @@ target_link_libraries(memfs-tests PUBLIC
     GTest::gtest_main
 )
 include(GoogleTest)
-gtest_discover_tests(driver-tests)
+gtest_discover_tests(memfs-tests)

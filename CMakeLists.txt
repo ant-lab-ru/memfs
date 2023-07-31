@@ -20,6 +20,17 @@ target_sources(${PROJECT_NAME} PUBLIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
-if(DEFINED BUILD_WITH_TESTS)
-add_subdirectory(./tests)
+if(BUILD_WITH_TESTS)
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.12.1
+  )
+  FetchContent_MakeAvailable(googletest)
+
+  add_subdirectory(./tests)
+
+  enable_testing()
+  include(GoogleTest)
 endif()

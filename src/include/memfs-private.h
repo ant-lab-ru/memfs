@@ -2,6 +2,10 @@
 
 #include "memfs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     memfs_file_t*   f;
     uint16_t        f_count;
@@ -25,4 +29,8 @@ typedef struct {
 extern memfs_ctx_t memfs_ctx;
 
 #define MEMFS_MIN(x,y) (((x) < (y)) ? (x) : (y))
+
+#ifdef __cplusplus
+}
+#endif
 

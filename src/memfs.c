@@ -1,12 +1,16 @@
 #include "memfs.h"
 #include "memfs-disk.h"
 #include "include/memfs-private.h"
+#include "include/memfs-util.h"
+#include "include/memfs-crc.h"
 
 #include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 memfs_ctx_t memfs_ctx = {0};
 
-int memfs_init(const memfs_file_t* files, const uint16_t files_count, const memfs_volume_t* volumes, const uint8_t volumes_count)
+int memfs_init(memfs_file_t* files, const uint16_t files_count, memfs_volume_t* volumes, const uint8_t volumes_count)
 {
     memset(&memfs_ctx, 0, sizeof(memfs_ctx_t));
 
@@ -47,7 +51,7 @@ int memfs_init(const memfs_file_t* files, const uint16_t files_count, const memf
     return 0;
 }
 
-int memfs_open(const char* filename, memfs_mode_t mode)
+int memfs_open(const char* filename, int mode)
 {
     // Если инициализация файловой системы прошла с ошибкой, работа невозможна
     if (!memfs_ctx.init_done) {
@@ -99,7 +103,7 @@ int memfs_close(int fid)
     if (!memfs_ctx.init_done) {
         return -10;
     }
-    memfs_file_t* f = _emfs_get_file_by_fid(fid);
+    memfs_file_t* f = _memfs_get_file_by_fid(fid);
     if (!f) {
         return -1;
     }
@@ -118,7 +122,7 @@ int memfs_close(int fid)
 
     if (f->attr == MEMFS_ATTR_REGULAR) {
         f->crc = _memfs_calculate_crc(f);
-        _memfs_save_file_to_disk(f);
+        _memfs_save_file_info_to_disk(f);
     }
 
     return rc;
@@ -131,7 +135,7 @@ int memfs_read(int fid, uint8_t* buffer, uint32_t length)
         return -10;
     }
 
-    memfs_file_t* f = _emfs_get_file_by_fid(fid);
+    memfs_file_t* f = _memfs_get_file_by_fid(fid);
     if (!f) {
         return -1;
     }
@@ -167,7 +171,7 @@ int memfs_write(int fid, uint8_t* data, uint32_t size)
     if (!memfs_ctx.init_done) {
         return -10;
     }
-    memfs_file_t* f = _emfs_get_file_by_fid(fid);
+    memfs_file_t* f = _memfs_get_file_by_fid(fid);
     if (!f) {
         return -1;
     }
@@ -203,7 +207,7 @@ int memfs_seek(int fid, uint32_t offset)
     if (!memfs_ctx.init_done) {
         return -10;
     }
-    memfs_file_t* f = _emfs_get_file_by_fid(fid);
+    memfs_file_t* f = _memfs_get_file_by_fid(fid);
     if (!f) {
         return -1;
     }
@@ -333,7 +337,7 @@ int memfs_log_write(const char* filename, const char* format, ...)
 
     memfs_log_header_t log_head = {0};
     int rc = 0;
-    rc = disk_read(f->volume_id, f->addr, &log_head, sizeof(log_head));
+    rc = disk_read(f->volume_id, f->addr, (uint8_t*)&log_head, sizeof(log_head));
     if (rc != sizeof(log_head)) {
         return -4;
     }
@@ -376,7 +380,7 @@ int memfs_log_write(const char* filename, const char* format, ...)
     log_head.ptr1 = ptr;
     log_head.ptr2 = ptr;
 
-    rc = disk_write(f->volume_id, f->addr, &log_head, sizeof(log_head));
+    rc = disk_write(f->volume_id, f->addr, (uint8_t*)&log_head, sizeof(log_head));
     if (rc != sizeof(log_head)) {
         return -8;
     }

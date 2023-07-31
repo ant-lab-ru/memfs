@@ -1,5 +1,9 @@
+#include "memfs-disk.h"
+
 #include "include/memfs-util.h"
 #include "include/memfs-private.h"
+
+#include <string.h>
 
 int _memfs_get_fid_by_name(const char* filename)
 {
@@ -51,7 +55,7 @@ void _memfs_load_file_info_to_ctx(memfs_file_t* f)
         }
 
         uint32_t head_addr = f->addr + f->binary_file_header_offset;
-        rc = disk_read(f->volume_id, head_addr, &f_binhead, sizeof(f_binhead));
+        rc = disk_read(f->volume_id, head_addr, (uint8_t*)&f_binhead, sizeof(f_binhead));
         if (rc != sizeof(f_binhead)) {
             f->size = f->cap;
             break;
@@ -68,7 +72,7 @@ void _memfs_load_file_info_to_ctx(memfs_file_t* f)
     case MEMFS_ATTR_REGULAR:
     case MEMFS_ATTR_READ_ONLY:
 
-        rc = disk_read(f->volume_id, f->addr, &f_head, sizeof(f_head));
+        rc = disk_read(f->volume_id, f->addr, (uint8_t*)&f_head, sizeof(f_head));
         if (rc != sizeof(f_head)) {
             break;
         }
@@ -100,7 +104,7 @@ void _memfs_load_file_info_to_ctx(memfs_file_t* f)
 bool _memfs_check_volumes(const memfs_volume_t* volumes, uint8_t volumes_count)
 {
     for (int i = 0; i < volumes_count; i++) {
-        memfs_volume_t* v = &volumes[i];
+        const memfs_volume_t* v = &volumes[i];
 
         if (v->type != MEMFS_VOLUME_TYPE_RAM) {
             return false;
@@ -113,7 +117,7 @@ bool _memfs_check_volumes(const memfs_volume_t* volumes, uint8_t volumes_count)
 bool _memfs_check_files(const memfs_file_t* files, uint16_t files_count, uint8_t volumes_count)
 {
     for (int i = 0; i < files_count; i++) {
-        memfs_file_t* f = &files[i];
+        const memfs_file_t* f = &files[i];
         uint32_t bfh = f->binary_file_header_offset;
 
         if (f->volume_id >= volumes_count) {
@@ -159,7 +163,7 @@ void _memfs_save_file_info_to_disk(memfs_file_t* f)
         f_head.file_size = f->size;
         strcpy(f_head.file_name, f->name);
 
-        rc = disk_write(f->volume_id, f->addr, &f_head, sizeof(f_head));
+        rc = disk_write(f->volume_id, f->addr, (uint8_t*)&f_head, sizeof(f_head));
         if (rc != sizeof(f_head)) {
             return;
         }
