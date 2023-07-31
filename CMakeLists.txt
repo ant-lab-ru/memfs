@@ -19,3 +19,7 @@ target_sources(${PROJECT_NAME} PUBLIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/include")
+
+if(DEFINED BUILD_WITH_TESTS)
+add_subdirectory(./tests)
+endif()
