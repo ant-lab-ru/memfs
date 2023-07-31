@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: configure
-      run: mkdir build && cd build && cmake -DBUILD_WITH_TESTS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" ..
+      run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" ..
 
     - name: make
       run: cd build && make
@@ -27,6 +27,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
+    - name: configure
+      run: mkdir build && cd build && cmake -DBUILD_WITH_TESTS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" ..
+
+    - name: make
+      run: cd build && make
 
     - name: test
       run: cd build && make test
