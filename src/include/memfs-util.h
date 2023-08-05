@@ -14,6 +14,10 @@ bool _memfs_check_volumes(const memfs_volume_t* volumes, uint8_t volumes_count);
 bool _memfs_check_files(const memfs_file_t* files, uint16_t files_count, uint8_t volumes_count);
 void _memfs_save_file_info_to_disk(memfs_file_t* f);
 
+bool _memfs_is_read_mode(int mode);
+bool _memfs_is_write_mode(int mode);
+bool _memfs_is_append_mode(int mode);
+
 #ifdef __cplusplus
 }
 #endif

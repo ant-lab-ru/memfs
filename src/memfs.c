@@ -51,13 +51,17 @@ int memfs_init(memfs_file_t* files, const uint16_t files_count, memfs_volume_t* 
     return 0;
 }
 
+#include "stdio.h"
+
 int memfs_open(const char* filename, int mode)
 {
     // Если инициализация файловой системы прошла с ошибкой, работа невозможна
     if (!memfs_ctx.init_done) {
         return -10;
     }
+
     int fid = _memfs_get_fid_by_name(filename);
+
     memfs_file_t* f = _memfs_get_file_by_fid(fid);
     if (!f) {
         return -1;
@@ -67,7 +71,16 @@ int memfs_open(const char* filename, int mode)
         return -3;
     }
 
-    if (mode == MEMFS_MODE_R) {
+    // if (!f->file_valid){
+    //     return -5;
+    // }
+
+    // uint32_t calculated_crc = _memfs_calculate_crc(f);
+    // if (calculated_crc != f->crc) {
+    //     return -4;
+    // }
+
+    if (_memfs_is_read_mode(mode)) {
         f->read_ptr = 0;
         f->state = MEMFS_FILE_STATE_RO;
         return fid;
@@ -80,13 +93,13 @@ int memfs_open(const char* filename, int mode)
         return -1;
     }
 
-    if (mode == MEMFS_MODE_W) {
+    if (_memfs_is_write_mode(mode)) {
         f->size = 0;
         f->state = MEMFS_FILE_STATE_WO;
         return fid;
     }
     
-    if (mode == MEMFS_MODE_A) {
+    if (_memfs_is_append_mode(mode)) {
         if (f->attr == MEMFS_ATTR_BINARY) {
             return -1;
         }
@@ -144,13 +157,13 @@ int memfs_read(int fid, uint8_t* buffer, uint32_t length)
         return -1;
     }
 
-    if (f->read_ptr >= f->size || f->size > f->cap) {
+    if (f->read_ptr >= f->size - sizeof(memfs_file_header_t) || f->size > f->cap - sizeof(memfs_file_header_t)) {
         return -2;
     }
 
-    uint32_t read_addr = f->addr + f->read_ptr;
-    if (read_addr > f->addr + f->size) {
-        return -2;
+    uint32_t read_addr = f->addr + f->read_ptr + sizeof(memfs_file_header_t);
+    if (read_addr > f->addr + f->size + sizeof(memfs_file_header_t)) {
+        return -222;
     }
 
     uint32_t read_len = MEMFS_MIN(length, f->size - f->read_ptr);
@@ -177,14 +190,14 @@ int memfs_write(int fid, uint8_t* data, uint32_t size)
     }
 
     if (f->state != MEMFS_FILE_STATE_WO) {
-        return -1;
+        return -145;
     }
 
-    if (f->size > f->cap) {
+    if (f->size > f->cap - sizeof(memfs_file_header_t)) {
         return -3;
     }
 
-    uint32_t write_addr = f->addr + f->size;
+    uint32_t write_addr = f->addr + sizeof(memfs_file_header_t) + f->size;
     if (write_addr > f->addr + f->cap) {
         return -2;
     }

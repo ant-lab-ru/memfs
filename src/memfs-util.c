@@ -175,3 +175,15 @@ void _memfs_save_file_info_to_disk(memfs_file_t* f)
 
     return;
 }
+
+bool _memfs_is_read_mode(int mode) {
+    return mode == MEMFS_MODE_R;
+}
+
+bool _memfs_is_write_mode(int mode) {
+    return mode == MEMFS_MODE_W;
+}
+
+bool _memfs_is_append_mode(int mode) {
+    return mode == MEMFS_MODE_A;
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "memfs.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
