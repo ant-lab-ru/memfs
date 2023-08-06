@@ -157,15 +157,11 @@ int memfs_read(int fid, uint8_t* buffer, uint32_t length)
         return -1;
     }
 
-    if (f->read_ptr >= f->size - sizeof(memfs_file_header_t) || f->size > f->cap - sizeof(memfs_file_header_t)) {
+    if (f->read_ptr >= f->size || f->size > f->cap - sizeof(memfs_file_header_t)) {
         return -2;
     }
 
     uint32_t read_addr = f->addr + f->read_ptr + sizeof(memfs_file_header_t);
-    if (read_addr > f->addr + f->size + sizeof(memfs_file_header_t)) {
-        return -222;
-    }
-
     uint32_t read_len = MEMFS_MIN(length, f->size - f->read_ptr);
 
     int rc = disk_read(f->volume_id, read_addr, buffer, read_len);
@@ -198,9 +194,6 @@ int memfs_write(int fid, uint8_t* data, uint32_t size)
     }
 
     uint32_t write_addr = f->addr + sizeof(memfs_file_header_t) + f->size;
-    if (write_addr > f->addr + f->cap) {
-        return -2;
-    }
     if (write_addr + size > f->addr + f->cap || size > f->cap) {
         return -2;
     }

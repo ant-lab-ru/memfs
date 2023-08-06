@@ -71,11 +71,8 @@ uint32_t _memfs_calculate_crc(memfs_file_t* f)
         offset = sizeof(uint32_t); // crc это первое слово в файле. Пропускаем его
         while (1)
         {
-            if (offset > f->size) {
-                return 0;
-            }
             uint32_t read_addr = f->addr + offset;
-            uint32_t read_size = MEMFS_MIN(MEMFS_DATA_BUF_LEN, f->size - offset);
+            uint32_t read_size = MEMFS_MIN(MEMFS_DATA_BUF_LEN, f->size + sizeof(memfs_file_header_t) - offset);
 
             int rc = disk_read(f->volume_id, read_addr, memfs_ctx.data_buf, read_size);
             if (rc != read_size) {
